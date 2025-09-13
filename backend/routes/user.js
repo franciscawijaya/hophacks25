@@ -78,8 +78,8 @@ router.get('/exists', (req, res) => {
   });
 });
 
-// Get user balance
-router.get('/balance', (req, res) => {
+// Generic function for JWT authentication
+function authenticateJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authorization header missing or invalid' });
@@ -87,18 +87,24 @@ router.get('/balance', (req, res) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const userId = decoded.userId;
-    db.get('SELECT balance FROM users WHERE id = ?', [userId], (err, row) => {
-      if (err) return res.status(500).json({ error: 'Database error' });
-      if (!row) return res.status(404).json({ error: 'User not found' });
-      res.json({ balance: row.balance });
-    });
+    req.userId = decoded.userId;
+    next();
   } catch (e) {
     if (e.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired' });
     }
     return res.status(401).json({ error: 'Invalid token' });
   }
+}
+
+// Get user balance
+router.get('/balance', authenticateJWT, (req, res) => {
+  const userId = req.userId;
+  db.get('SELECT balance FROM users WHERE id = ?', [userId], (err, row) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (!row) return res.status(404).json({ error: 'User not found' });
+    res.json({ balance: row.balance });
+  });
 });
 
 module.exports = router;
