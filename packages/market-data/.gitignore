@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+dev.db
+dev.db-*
+prisma/dev.db
+prisma/dev.db-*
+*.log
+.DS_Store
+Thumbs.db
+package-lock.json

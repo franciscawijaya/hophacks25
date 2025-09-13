@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Candle {
+  symbol    String
+  timeframe String
+  ts        BigInt
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+
+  @@id([symbol, timeframe, ts])
+  @@index([symbol, timeframe, ts])
+}
+
+model Quote {
+  symbol String
+  ts     BigInt
+  bid    Float?
+  ask    Float?
+  last   Float?
+
+  @@id([symbol, ts])
+  @@index([symbol, ts])
+}

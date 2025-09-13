@@ -1,0 +1,33 @@
+{
+  "name": "hophacks-ingestor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev -n init",
+    "studio": "prisma studio",
+    "dev": "ts-node src/index.ts",
+    "check": "ts-node src/check.ts",
+    "symbols": "ts-node src/tools/buildSymbols.ts",
+    "dev:api": "ts-node src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@prisma/client": "^6.16.1",
+    "dotenv": "^17.2.2",
+    "fastify": "^5.6.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.3",
+    "@types/ws": "^8.18.1",
+    "prisma": "^6.16.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
