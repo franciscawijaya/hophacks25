@@ -117,13 +117,14 @@ router.get('/balance', authenticateJWT, (req, res) => {
   
   if (includePortfolio) {
     // Get both balance and portfolio
-    db.get('SELECT balance FROM users WHERE id = ?', [userId], (err, user) => {
+    db.get('SELECT username, balance FROM users WHERE id = ?', [userId], (err, user) => {
       if (err) return res.status(500).json({ error: 'Database error' });
       if (!user) return res.status(404).json({ error: 'User not found' });
       
       db.all('SELECT symbol, quantity, price_per_unit_bought FROM portfolio WHERE user_id = ?', [userId], (err, portfolio) => {
         if (err) return res.status(500).json({ error: 'Database error' });
-        res.json({ 
+        res.json({
+          username: user.username,
           balance: user.balance, 
           portfolio: portfolio 
         });
@@ -131,10 +132,10 @@ router.get('/balance', authenticateJWT, (req, res) => {
     });
   } else {
     // Get only balance
-    db.get('SELECT balance FROM users WHERE id = ?', [userId], (err, row) => {
+    db.get('SELECT username, balance FROM users WHERE id = ?', [userId], (err, row) => {
       if (err) return res.status(500).json({ error: 'Database error' });
       if (!row) return res.status(404).json({ error: 'User not found' });
-      res.json({ balance: row.balance });
+      res.json({ username: row.username, balance: row.balance });
     });
   }
 });

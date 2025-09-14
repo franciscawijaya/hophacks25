@@ -35,7 +35,7 @@ export default function LoginPage() {
       if (res.status === 200 && data.token) {
         setSuccess("Login successful!");
         setError("");
-        login(data.token);
+        login(data.token, username);
         router.push("/");
       } else if (res.status === 400) {
         setError(data.error || "Username and password required");
