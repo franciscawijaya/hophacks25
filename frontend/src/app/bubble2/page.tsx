@@ -379,7 +379,7 @@ export default function BubbleChartPage2() {
             .html(
               `<div style='font-size:18px;font-weight:700;margin-bottom:2px;'>${SYMBOL_NAME_MAP[data.symbol]}</div>` +
               `<div>Price: <b>${data.low}</b></div>` +
-              `<div>Balance: <b>${data.close}</b></div>`
+              `<div>Balance: <b>${data.high}</b></div>`
             );
         })
         .on("mousemove", function (event) {
@@ -437,7 +437,7 @@ export default function BubbleChartPage2() {
         close: item.quantity * item.price_per_unit_bought
       }) as Candle);
       for (const item of all) {
-        walletRef.current[item.symbol] = item.close;
+        walletRef.current[item.symbol] = item.high;
       }
       setData(all);
       setMaxFrame(0);
