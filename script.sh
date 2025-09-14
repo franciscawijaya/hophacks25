@@ -18,6 +18,18 @@ $PKG start &
 BACKEND_PID=$!
 cd ..
 
+# start database
+cd packages/market-data
+$PKG install
+$PKG generate
+$PKG migrate
+echo "Starting database..."
+$PKG dev &
+DB_PID=$!
+$PKG dev:api &
+DBAPI_PID=$!
+cd ../..
+
 # start frontend
 cd frontend
 $PKG install
@@ -27,7 +39,9 @@ FRONTEND_PID=$!
 cd ..
 
 echo "Backend PID: $BACKEND_PID"
+echo "Database PID: $DB_PID"
+echo "Database API PID: $DBAPI_PID"
 echo "Frontend PID: $FRONTEND_PID"
-echo "Both backend and frontend are running."
+echo "backend, database, frontend are running."
 
-wait $BACKEND_PID $FRONTEND_PID
+wait $BACKEND_PID $DB_PID $DBAPI_PID $FRONTEND_PID
