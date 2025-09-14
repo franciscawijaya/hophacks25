@@ -10,38 +10,67 @@ else
 fi
 echo "Using package manager: $PKG"
 
-# start backend
-cd backend
-$PKG install
-echo "Starting backend..."
-$PKG run start &
-BACKEND_PID=$!
-cd ..
+function build() {
+	# build backend
+	cd backend
+	$PKG install
+	cd ..
 
-# start database
-cd packages/market-data
-$PKG install
-$PKG run generate
-$PKG run migrate
-echo "Starting database..."
-$PKG run dev &
-DB_PID=$!
-$PKG run dev:api &
-DBAPI_PID=$!
-cd ../..
+	# build database
+	cd packages/market-data
+	$PKG install
+	$PKG run generate
+	$PKG run migrate
+	cd ../..
 
-# start frontend
-cd frontend
-$PKG install
-echo "Starting frontend..."
-$PKG run dev &
-FRONTEND_PID=$!
-cd ..
+	# build frontend
+	cd frontend
+	$PKG install
+	cd ..
+}
 
-echo "Backend PID: $BACKEND_PID"
-echo "Database PID: $DB_PID"
-echo "Database API PID: $DBAPI_PID"
-echo "Frontend PID: $FRONTEND_PID"
-echo "backend, database, frontend are running."
+function run() {
+	# start backend
+	cd backend
+	echo "Starting backend..."
+	$PKG run start &
+	BACKEND_PID=$!
+	cd ..
 
-wait $BACKEND_PID $DB_PID $DBAPI_PID $FRONTEND_PID
+	# start database
+	cd packages/market-data
+	echo "Starting database..."
+	$PKG run dev &
+	DB_PID=$!
+	$PKG run dev:api &
+	DBAPI_PID=$!
+	cd ../..
+
+	# start frontend
+	cd frontend
+	echo "Starting frontend..."
+	$PKG run dev &
+	FRONTEND_PID=$!
+	cd ..
+
+	echo "Backend PID: $BACKEND_PID"
+	echo "Database PID: $DB_PID"
+	echo "Database API PID: $DBAPI_PID"
+	echo "Frontend PID: $FRONTEND_PID"
+	echo "backend, database, frontend are running."
+
+	wait $BACKEND_PID $DB_PID $DBAPI_PID $FRONTEND_PID
+}
+
+case $1 in
+    build )
+        build
+        ;;
+    run )
+        run
+        ;;
+    * )
+        echo "Unknown action $1"
+        ;;
+esac
+
