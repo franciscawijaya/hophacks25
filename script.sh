@@ -14,19 +14,19 @@ echo "Using package manager: $PKG"
 cd backend
 $PKG install
 echo "Starting backend..."
-$PKG start &
+$PKG run start &
 BACKEND_PID=$!
 cd ..
 
 # start database
 cd packages/market-data
 $PKG install
-$PKG generate
-$PKG migrate
+$PKG run generate
+$PKG run migrate
 echo "Starting database..."
-$PKG dev &
+$PKG run dev &
 DB_PID=$!
-$PKG dev:api &
+$PKG run dev:api &
 DBAPI_PID=$!
 cd ../..
 
@@ -34,7 +34,7 @@ cd ../..
 cd frontend
 $PKG install
 echo "Starting frontend..."
-$PKG dev &
+$PKG run dev &
 FRONTEND_PID=$!
 cd ..
 

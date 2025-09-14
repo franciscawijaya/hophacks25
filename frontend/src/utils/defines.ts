@@ -1,3 +1,5 @@
+import { symbol } from "d3";
+
 export type Candle = {
   symbol: string;
   open: number;
@@ -20,3 +22,10 @@ export const SYMBOL_NAME_MAP: Record<string, string> = {
   UNIUSD: "Uniswap",
   XRPUSD: "XRP",
 };
+
+export type Circle = {
+  symbol: string;
+  amount: number;
+  price: number;
+  circle: SVGCircleElement;
+}
