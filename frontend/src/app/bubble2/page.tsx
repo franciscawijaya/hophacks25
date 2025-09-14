@@ -282,6 +282,32 @@ export default function BubbleChartPage2() {
         // .style("background", "#f5f7fa");
 
       bubbleGroup.selectAll("*").remove(); 
+      
+      // Add gradient definitions
+      const defs = svg.select("defs");
+      if (defs.empty()) {
+        svg.append("defs");
+      }
+      
+      // Portfolio gradient
+      svg.select("defs").selectAll("#portfolioGradient").remove();
+      svg.select("defs").append("linearGradient")
+        .attr("id", "portfolioGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "100%")
+        .selectAll("stop")
+        .data([
+          { offset: "0%", color: "#8b5cf6", opacity: 0.3 },
+          { offset: "50%", color: "#ec4899", opacity: 0.2 },
+          { offset: "100%", color: "#f59e0b", opacity: 0.3 }
+        ])
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color)
+        .attr("stop-opacity", d => d.opacity);
+      
       bubbleGroup.append("rect")
         .attr("x", 10)
         .attr("y", 10)
@@ -289,9 +315,10 @@ export default function BubbleChartPage2() {
         .attr("height", width - 20)
         .attr("rx", 24)
         .attr("ry", 24)
-        .attr("fill", "#f1dab4ff")
-        .attr("stroke", "#f07110ff")
-        .attr("stroke-width", 2);
+        .attr("fill", "url(#portfolioGradient)")
+        .attr("stroke", "#8b5cf6")
+        .attr("stroke-width", 2)
+        .attr("filter", "url(#glow2)");
 
       const data_frame = data;
 
@@ -327,7 +354,23 @@ export default function BubbleChartPage2() {
         .attr("r", d => d.r)
         .attr("fill", d => color((d.data as Candle).symbol))
         .attr("opacity", 0.8)
-        .attr("pointer-events", "all");
+        .attr("pointer-events", "all")
+        .attr("filter", "url(#glow2)")
+        .style("transition", "all 0.3s ease")
+        .on("mouseover", function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("opacity", 1)
+            .attr("r", d => d.r * 1.1);
+        })
+        .on("mouseout", function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("opacity", 0.8)
+            .attr("r", d => d.r);
+        });
 
       node.on("mouseover", function (event, d) {
           d3.select(this).select("circle")
@@ -398,6 +441,26 @@ export default function BubbleChartPage2() {
         // Cart Area
         cartGroup.selectAll("*").remove();
         cartGroup.attr("transform", `translate(0, ${bubbleHeight})`);
+        
+        // Sell cart gradient
+        svg.select("defs").selectAll("#sellCartGradient").remove();
+        svg.select("defs").append("linearGradient")
+          .attr("id", "sellCartGradient")
+          .attr("x1", "0%")
+          .attr("y1", "0%")
+          .attr("x2", "100%")
+          .attr("y2", "100%")
+          .selectAll("stop")
+          .data([
+            { offset: "0%", color: "#10b981", opacity: 0.3 },
+            { offset: "50%", color: "#059669", opacity: 0.2 },
+            { offset: "100%", color: "#047857", opacity: 0.3 }
+          ])
+          .enter().append("stop")
+          .attr("offset", d => d.offset)
+          .attr("stop-color", d => d.color)
+          .attr("stop-opacity", d => d.opacity);
+        
         cartGroup.append("rect")
           .attr("x", 10)
           .attr("y", 10)
@@ -405,9 +468,10 @@ export default function BubbleChartPage2() {
           .attr("height", width - 20)
           .attr("rx", 24)
           .attr("ry", 24)
-          .attr("fill", "#b3c2e6ff")
-          .attr("stroke", "#1b17f4ff")
-          .attr("stroke-width", 2);
+          .attr("fill", "url(#sellCartGradient)")
+          .attr("stroke", "#10b981")
+          .attr("stroke-width", 2)
+          .attr("filter", "url(#glow2)");
 
       svg.selectAll("text").style("user-select", "none");
     }
@@ -459,33 +523,87 @@ export default function BubbleChartPage2() {
   }, [balance]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <svg id="bubble2-chart" width={width} height={height}>
-        <g id="bubble-area" />
-        <g id="cart-area" />
-        <g id="dragging-circle" />
-      </svg>
-      <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#eee', border: '1px solid #bbb', cursor: 'pointer' }} onClick={handleRefresh}>↻</button>
-        {/* <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#eee', border: '1px solid #bbb', cursor: 'pointer' }} onClick={cancelCart}>Cancel</button> */}
-        <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#ff9800', color: '#fff', border: 'none', cursor: 'pointer' }} onClick={buyCart}>Sell</button>
-        <span style={{ marginLeft: 6, fontSize: 18, color: cart_circles.length === 0 ? '#1976d2' : '#f43b3bff', fontWeight: 600 }}>
-          Balance: {balance === null ? '...' : `$${balance.toFixed(2)}`}
-        </span>
-      </div>
-      {/* <div style={{ width: 600, marginBottom: 24 }}>
-        <input
-          type="range"
-          min={0}
-          max={maxFrame}
-          value={frame}
-          onChange={e => setFrame(Number(e.target.value))}
-          style={{ width: "100%" }}
-        />
-        <div style={{ textAlign: "center", marginTop: 4, color: "#666" }}>
-          Timeframe: {frame + 1} / {maxFrame + 1}
+    <div className="flex flex-col justify-center items-center min-h-[700px] space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <div className="flex items-center justify-center space-x-2">
+          <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+          <h3 className="text-lg font-bold text-white">Your Portfolio</h3>
         </div>
-      </div> */}
+        <p className="text-purple-200 text-sm">Drag from wallet to cart to sell</p>
+      </div>
+
+      {/* Chart Container */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl"></div>
+        <div className="relative bg-white/5 backdrop-blur-md rounded-3xl p-4 border border-white/10 shadow-2xl">
+          <svg id="bubble2-chart" width={width} height={height} className="rounded-2xl">
+            <defs>
+              <filter id="glow2">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <g id="bubble-area" />
+            <g id="cart-area" />
+            <g id="dragging-circle" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center space-x-4">
+        <button 
+          onClick={handleRefresh}
+          className="group relative px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="flex items-center space-x-2">
+            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+        </button>
+        
+        <button 
+          onClick={buyCart}
+          className="group relative px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="flex items-center space-x-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+            </svg>
+            <span>Sell</span>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+        </button>
+        
+        <div className="flex items-center space-x-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${cart_circles.length === 0 ? 'bg-purple-400' : 'bg-green-400'} animate-pulse`}></div>
+            <span className="text-white font-semibold">Balance:</span>
+          </div>
+          <span className={`text-lg font-bold ${cart_circles.length === 0 ? 'text-purple-300' : 'text-green-300'}`}>
+            {balance === null ? '...' : `$${balance.toFixed(2)}`}
+          </span>
+        </div>
+      </div>
+
+      {/* Cart Status */}
+      {cart_circles.length > 0 && (
+        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-md rounded-xl p-4 border border-green-500/30">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-green-200 font-semibold">
+              {cart_circles.length} position{cart_circles.length > 1 ? 's' : ''} ready to sell
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

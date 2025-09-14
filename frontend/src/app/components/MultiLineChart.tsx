@@ -277,6 +277,26 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
         .style("opacity", 0.7);
     });
 
+    // Add grid lines with better contrast
+    g.append("g")
+      .attr("class", "grid")
+      .attr("transform", `translate(0, ${innerHeight})`)
+      .call(d3.axisBottom(xScale)
+        .tickSize(-innerHeight)
+        .tickFormat(() => ""))
+      .style("opacity", 0.15)
+      .style("stroke", "#ffffff")
+      .style("stroke-dasharray", "2,2");
+
+    g.append("g")
+      .attr("class", "grid")
+      .call(d3.axisLeft(yScale)
+        .tickSize(-innerWidth)
+        .tickFormat(() => ""))
+      .style("opacity", 0.15)
+      .style("stroke", "#ffffff")
+      .style("stroke-dasharray", "2,2");
+
     // Add axes with dynamic formatting based on timeframe
     const timeFormat = selectedDataLimit > 1440 ? 
       d3.timeFormat("%m/%d") : // For longer periods, show month/day
@@ -288,10 +308,18 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
     
     g.append("g")
       .attr("transform", `translate(0, ${innerHeight})`)
-      .call(xAxis);
+      .call(xAxis)
+      .style("color", "#ffffff")
+      .selectAll("text")
+      .style("fill", "#ffffff")
+      .style("font-size", "12px");
 
     g.append("g")
-      .call(d3.axisLeft(yScale).tickFormat(normalizeData ? d3.format(".0f") : d3.format("$.2f")));
+      .call(d3.axisLeft(yScale).tickFormat(normalizeData ? d3.format(".0f") : d3.format("$.2f")))
+      .style("color", "#ffffff")
+      .selectAll("text")
+      .style("fill", "#ffffff")
+      .style("font-size", "12px");
 
     // Add axis labels
     g.append("text")
@@ -300,11 +328,17 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
       .attr("x", 0 - (innerHeight / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
+      .style("fill", "#ffffff")
+      .style("font-size", "14px")
+      .style("font-weight", "600")
       .text(normalizeData ? "Normalized Price (0-100)" : "Price ($)");
 
     g.append("text")
       .attr("transform", `translate(${innerWidth / 2}, ${innerHeight + margin.bottom})`)
       .style("text-anchor", "middle")
+      .style("fill", "#ffffff")
+      .style("font-size", "14px")
+      .style("font-weight", "600")
       .text("Time");
 
     // Add legend
@@ -318,12 +352,16 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
       legendRow.append("rect")
         .attr("width", 15)
         .attr("height", 15)
-        .attr("fill", colorScale(symbol));
+        .attr("fill", colorScale(symbol))
+        .attr("rx", 3)
+        .attr("ry", 3);
 
       legendRow.append("text")
         .attr("x", 20)
         .attr("y", 12)
         .style("font-size", "12px")
+        .style("fill", "#ffffff")
+        .style("font-weight", "500")
         .text(symbol);
     });
 
@@ -335,15 +373,17 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
       explanation.append("text")
         .attr("x", 0)
         .attr("y", 0)
-        .style("font-size", "10px")
-        .style("fill", "#666")
+        .style("font-size", "11px")
+        .style("fill", "#ffffff")
+        .style("font-weight", "500")
         .text("Data normalized to 0-100 scale");
       
       explanation.append("text")
         .attr("x", 0)
-        .attr("y", 12)
-        .style("font-size", "10px")
-        .style("fill", "#666")
+        .attr("y", 14)
+        .style("font-size", "11px")
+        .style("fill", "#ffffff")
+        .style("font-weight", "500")
         .text("for better comparison");
     }
 
@@ -372,20 +412,29 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-6">
       {/* Timeframe Selection */}
-      <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-semibold text-blue-900 mb-1">Time Period</h3>
-            <p className="text-sm text-blue-700">
-              {timeframeOptions.find(opt => opt.dataLimit === selectedDataLimit)?.description}
-            </p>
+      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-md rounded-2xl p-6 border border-blue-500/20">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Time Period</h3>
+                <p className="text-blue-200 text-sm">
+                  {timeframeOptions.find(opt => opt.dataLimit === selectedDataLimit)?.description}
+                </p>
+              </div>
+            </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <label htmlFor="timeframe-select" className="text-sm font-medium text-blue-900">
-              Select:
+          <div className="flex items-center gap-4">
+            <label htmlFor="timeframe-select" className="text-sm font-semibold text-white">
+              Select Timeframe:
             </label>
             <select
               id="timeframe-select"
@@ -397,10 +446,10 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
                   handleTimeframeChange(option.value, option.dataLimit);
                 }
               }}
-              className="px-4 py-2 border border-blue-300 rounded-lg bg-white text-blue-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+              className="px-4 py-3 border border-white/20 rounded-xl bg-white/10 backdrop-blur-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-lg transition-all duration-300"
             >
               {timeframeOptions.map(option => (
-                <option key={option.label} value={option.dataLimit}>
+                <option key={option.label} value={option.dataLimit} className="bg-slate-800 text-white">
                   {option.label}
                 </option>
               ))}
@@ -409,17 +458,17 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
         </div>
         
         {/* Quick preset buttons for common timeframes */}
-        <div className="mt-4 pt-4 border-t border-blue-200">
-          <p className="text-xs text-blue-600 mb-2 font-medium">Quick Select:</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <p className="text-sm text-blue-200 mb-4 font-semibold">⚡ Quick Select:</p>
+          <div className="flex flex-wrap gap-3">
             {timeframeOptions.slice(0, 4).map(option => (
               <button
                 key={option.label}
                 onClick={() => handleTimeframeChange(option.value, option.dataLimit)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
                   selectedDataLimit === option.dataLimit
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : 'bg-white text-blue-700 hover:bg-blue-100 border border-blue-300'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25'
+                    : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 backdrop-blur-md'
                 }`}
               >
                 {option.label}
@@ -430,54 +479,63 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
       </div>
 
       {/* Symbol Selection */}
-      <div className="mb-4 p-4 bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Symbols</h3>
-            <p className="text-sm text-gray-600">
-              {selectedSymbols.length > 0 
-                ? `${selectedSymbols.length} symbol${selectedSymbols.length > 1 ? 's' : ''} selected`
-                : 'No symbols selected'
-              }
-            </p>
+      <div className="bg-gradient-to-r from-slate-500/10 to-gray-500/10 backdrop-blur-md rounded-2xl p-6 border border-slate-500/20">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-slate-500 to-gray-500 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Cryptocurrency Symbols</h3>
+                <p className="text-slate-200 text-sm">
+                  {selectedSymbols.length > 0 
+                    ? `${selectedSymbols.length} symbol${selectedSymbols.length > 1 ? 's' : ''} selected`
+                    : 'No symbols selected'
+                  }
+                </p>
+              </div>
+            </div>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setSelectedSymbols(symbols.slice(0, 3))}
-              className="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300 border border-white/20 backdrop-blur-md"
             >
               Select Top 3
             </button>
             <button
               onClick={() => setSelectedSymbols([])}
-              className="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300 border border-white/20 backdrop-blur-md"
             >
               Clear All
             </button>
             <button
               onClick={() => setNormalizeData(!normalizeData)}
-              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+              className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
                 normalizeData
-                  ? 'bg-green-500 text-white'
-                  : 'bg-white text-green-700 hover:bg-green-100 border border-green-300'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
+                  : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/20 backdrop-blur-md'
               }`}
               title={normalizeData ? "Switch to absolute prices" : "Switch to normalized prices (0-100 scale)"}
             >
-              {normalizeData ? "Normalized" : "Absolute"}
+              {normalizeData ? "📊 Normalized" : "💰 Absolute"}
             </button>
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {symbols.map(symbol => (
             <button
               key={symbol}
               onClick={() => handleSymbolToggle(symbol)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
                 selectedSymbols.includes(symbol)
-                  ? 'bg-blue-500 text-white shadow-md transform scale-105'
-                  : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 border border-gray-300 hover:border-blue-300'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25 scale-105'
+                  : 'bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white border border-white/20 backdrop-blur-md'
               }`}
             >
               {symbol}
@@ -487,29 +545,63 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
       </div>
 
       {loading && (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          <span className="ml-3 text-gray-600">Loading chart data...</span>
+        <div className="flex flex-col justify-center items-center h-64 space-y-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-transparent bg-gradient-to-r from-blue-500 to-purple-500"></div>
+            <div className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-4 border-transparent border-t-white"></div>
+          </div>
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-white mb-2">Loading Chart Data</h3>
+            <p className="text-slate-300">Fetching real-time market information...</p>
+          </div>
         </div>
       )}
 
       {!loading && selectedSymbols.length === 0 && (
-        <div className="flex justify-center items-center h-64 text-gray-500">
-          Please select at least one symbol to display the chart.
+        <div className="flex flex-col justify-center items-center h-64 space-y-4">
+          <div className="w-20 h-20 bg-gradient-to-r from-slate-500 to-gray-500 rounded-full flex items-center justify-center">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-white mb-2">No Symbols Selected</h3>
+            <p className="text-slate-300">Please select at least one symbol to display the chart.</p>
+          </div>
         </div>
       )}
 
       {!loading && selectedSymbols.length > 0 && (
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-4">
-            Multi-Symbol Price Chart ({timeframeOptions.find(opt => opt.dataLimit === selectedDataLimit)?.label})
-          </h2>
-          <svg
-            ref={svgRef}
-            width={width}
-            height={height}
-            className="border border-gray-200 rounded"
-          />
+        <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/10 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  Multi-Symbol Price Chart
+                </h2>
+                <p className="text-purple-200">
+                  {timeframeOptions.find(opt => opt.dataLimit === selectedDataLimit)?.label} • {selectedSymbols.length} symbols
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-purple-200">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>Live Data</span>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <svg
+              ref={svgRef}
+              width={width}
+              height={height}
+              className="w-full h-auto"
+            />
+          </div>
         </div>
       )}
     </div>

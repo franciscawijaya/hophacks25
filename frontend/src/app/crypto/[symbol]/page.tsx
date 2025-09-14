@@ -207,10 +207,21 @@ Rules:
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+          <div className="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        </div>
+        
+        <div className="text-center relative z-10">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-transparent bg-gradient-to-r from-purple-400 to-pink-400 mx-auto mb-6"></div>
+            <div className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-4 border-transparent border-t-white mx-auto"></div>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Loading Your Dashboard</h2>
+          <p className="text-purple-200">Preparing your trading environment...</p>
         </div>
       </div>
     );
@@ -222,11 +233,21 @@ Rules:
 
   if (loadingData) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading {resolvedParams.symbol} data...</p>
-          <p className="text-sm text-gray-500 mt-2">Fetching information from AI...</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+          <div className="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        </div>
+        
+        <div className="text-center relative z-10">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-transparent bg-gradient-to-r from-purple-400 to-pink-400 mx-auto mb-6"></div>
+            <div className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-4 border-transparent border-t-white mx-auto"></div>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Loading {resolvedParams.symbol} Data</h2>
+          <p className="text-purple-200">Fetching information from AI...</p>
         </div>
       </div>
     );
@@ -234,17 +255,35 @@ Rules:
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <h3 className="font-bold">Error Loading Data</h3>
-            <p className="text-sm">{error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20"></div>
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        </div>
+        
+        <div className="text-center max-w-md mx-auto relative z-10">
+          <div className="bg-red-500/20 backdrop-blur-md border border-red-500/30 text-red-300 px-8 py-6 rounded-2xl mb-6">
+            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold mb-2">Error Loading Data</h3>
+            <p className="text-sm text-red-200">{error}</p>
           </div>
           <button 
             onClick={fetchCryptoData}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
-            Try Again
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Try Again</span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
           </button>
         </div>
       </div>
@@ -252,66 +291,88 @@ Rules:
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-12">
             <Link 
               href="/"
-              className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+              className="group inline-flex items-center text-purple-300 hover:text-white mb-6 transition-colors duration-300"
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 mr-2 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               Back to Dashboard
             </Link>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              {resolvedParams.symbol}
-            </h1>
-            <p className="text-gray-600">
-              Cryptocurrency information and character details
-            </p>
+            
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-2xl font-bold text-white">
+                  {resolvedParams.symbol.charAt(0)}
+                </span>
+              </div>
+              <div>
+                <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                  {resolvedParams.symbol}
+                </h1>
+                <p className="text-purple-300 text-lg">
+                  Cryptocurrency information and character details
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* Description Section */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-start space-x-6 mb-6">
+              <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10 shadow-2xl">
+                <div className="flex items-start space-x-8 mb-8">
                   {/* Character Image */}
                   <div className="flex-shrink-0">
                     {cryptoInfo?.characterImage ? (
-                      <div className="relative">
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                         <img
                           src={cryptoInfo.characterImage.imageUrl}
                           alt={`${resolvedParams.symbol} character`}
-                          className="w-32 h-32 rounded-lg object-cover border-4 border-purple-200 shadow-lg"
+                          className="relative w-40 h-40 rounded-2xl object-cover border-2 border-white/20 shadow-2xl group-hover:scale-105 transition-transform duration-300"
                         />
                         {cryptoInfo.characterImage.imageUrl.startsWith('data:image/svg') && (
-                          <div className="absolute -top-2 -right-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full border border-yellow-300">
+                          <div className="absolute -top-2 -right-2 bg-yellow-500/20 backdrop-blur-md text-yellow-300 text-xs px-3 py-1 rounded-full border border-yellow-500/30">
                             SVG
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-200 shadow-lg">
-                        {resolvedParams.symbol.charAt(0)}
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                        <div className="relative w-40 h-40 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-5xl font-bold border-2 border-white/20 shadow-2xl group-hover:scale-105 transition-transform duration-300">
+                          {resolvedParams.symbol.charAt(0)}
+                        </div>
                       </div>
                     )}
                   </div>
                   
                   {/* Character Info */}
                   <div className="flex-1">
-                    <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                    <h2 className="text-3xl font-bold text-white mb-3">
                       Meet {resolvedParams.symbol}!
                     </h2>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+                    <div className="flex items-center space-x-3 text-sm text-purple-200">
+                      <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
                       <span>AI Generated Character</span>
                       {cryptoInfo?.characterImage?.imageUrl.startsWith('data:image/svg') && (
-                        <span className="text-yellow-600 text-xs">
+                        <span className="text-yellow-300 text-xs bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30">
                           (Free tier - using SVG fallback)
                         </span>
                       )}
@@ -319,92 +380,153 @@ Rules:
                   </div>
                 </div>
                 
-                <div className="prose max-w-none">
-                  <p className="text-gray-600 leading-relaxed mb-4">
-                    {cryptoInfo?.description || `Learn about ${resolvedParams.symbol}, a prominent cryptocurrency in the digital asset space.`}
-                  </p>
+                <div className="space-y-8">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-md rounded-2xl p-6 border border-blue-500/20">
+                    <h3 className="text-xl font-bold text-white mb-3 flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      Overview
+                    </h3>
+                    <p className="text-purple-200 leading-relaxed">
+                      {cryptoInfo?.description || `Learn about ${resolvedParams.symbol}, a prominent cryptocurrency in the digital asset space.`}
+                    </p>
+                  </div>
                   
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Context & History</h3>
-                  <p className="text-gray-600 leading-relaxed mb-4">
-                    {cryptoInfo?.context || `${resolvedParams.symbol} has established itself as a significant player in the cryptocurrency market.`}
-                  </p>
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-md rounded-2xl p-6 border border-green-500/20">
+                    <h3 className="text-xl font-bold text-white mb-3 flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      Context & History
+                    </h3>
+                    <p className="text-green-200 leading-relaxed">
+                      {cryptoInfo?.context || `${resolvedParams.symbol} has established itself as a significant player in the cryptocurrency market.`}
+                    </p>
+                  </div>
 
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Key Features</h3>
-                  <ul className="list-disc list-inside text-gray-600 space-y-1 mb-4">
-                    {cryptoInfo?.keyFeatures?.map((feature, index) => (
-                      <li key={index}>{feature}</li>
-                    )) || (
-                      <>
-                        <li>Advanced blockchain technology</li>
-                        <li>Decentralized network</li>
-                        <li>Secure transactions</li>
-                        <li>Community governance</li>
-                      </>
-                    )}
-                  </ul>
+                  <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-md rounded-2xl p-6 border border-orange-500/20">
+                    <h3 className="text-xl font-bold text-white mb-3 flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      Key Features
+                    </h3>
+                    <ul className="space-y-2">
+                      {cryptoInfo?.keyFeatures?.map((feature, index) => (
+                        <li key={index} className="flex items-center text-orange-200">
+                          <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                          {feature}
+                        </li>
+                      )) || (
+                        <>
+                          <li className="flex items-center text-orange-200">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Advanced blockchain technology
+                          </li>
+                          <li className="flex items-center text-orange-200">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Decentralized network
+                          </li>
+                          <li className="flex items-center text-orange-200">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Secure transactions
+                          </li>
+                          <li className="flex items-center text-orange-200">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            Community governance
+                          </li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
 
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Market Position</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {cryptoInfo?.marketPosition || `${resolvedParams.symbol} holds a significant position in the cryptocurrency market.`}
-                  </p>
+                  <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20">
+                    <h3 className="text-xl font-bold text-white mb-3 flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                      </div>
+                      Market Position
+                    </h3>
+                    <p className="text-purple-200 leading-relaxed">
+                      {cryptoInfo?.marketPosition || `${resolvedParams.symbol} holds a significant position in the cryptocurrency market.`}
+                    </p>
+                  </div>
                 </div>
               </div>
 
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Quick Stats */}
               <QuickStats symbol={resolvedParams.symbol} />
 
               {/* Relevant News */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Relevant News
-                </h3>
+              <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 shadow-2xl">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Relevant News</h3>
+                    <p className="text-cyan-200 text-sm">Latest market updates</p>
+                  </div>
+                </div>
+                
                 {loadingNews ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                      <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-white/20 rounded w-1/2 mb-2"></div>
+                      <div className="h-3 bg-white/20 rounded w-1/4"></div>
                     </div>
                     <div className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                      <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-white/20 rounded w-1/2 mb-2"></div>
+                      <div className="h-3 bg-white/20 rounded w-1/4"></div>
                     </div>
                   </div>
                 ) : news.length > 0 ? (
                   <div className="space-y-4">
                     {news.map((item, index) => (
-                      <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="text-sm font-medium text-gray-900 leading-tight flex-1 mr-2">
+                      <div key={index} className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                        <div className="flex items-start justify-between mb-3">
+                          <h4 className="text-sm font-semibold text-white leading-tight flex-1 mr-3">
                             {item.title}
                           </h4>
-                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
+                          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
                             item.sentiment === 'positive' 
-                              ? 'bg-green-100 text-green-800 border-green-200' 
-                              : 'bg-red-100 text-red-800 border-red-200'
+                              ? 'bg-green-500/20 text-green-300 border-green-500/30' 
+                              : 'bg-red-500/20 text-red-300 border-red-500/30'
                           }`}>
                             <span className="mr-1">{item.sentiment === 'positive' ? '📈' : '📉'}</span>
                             {item.sentiment}
                           </div>
                         </div>
                         
-                        <p className="text-sm text-gray-600 mb-2 leading-relaxed">
+                        <p className="text-sm text-purple-200 mb-3 leading-relaxed">
                           {item.summary}
                         </p>
                         
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-purple-300">
                           <span className="font-medium">{item.source}</span>
                           {item.url && item.url !== "#" && (
                             <a
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800"
+                              className="text-cyan-300 hover:text-cyan-200 transition-colors"
                             >
                               Read more →
                             </a>
@@ -414,24 +536,51 @@ Rules:
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-4">No news available at the moment.</p>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                      </svg>
+                    </div>
+                    <p className="text-purple-300">No news available at the moment.</p>
+                  </div>
                 )}
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Quick Actions
-                </h3>
-                <div className="space-y-3">
+              <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 shadow-2xl">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Quick Actions</h3>
+                    <p className="text-purple-200 text-sm">Trading tools & analysis</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
                   <Link
                     href={`/chart?symbol=${resolvedParams.symbol}`}
-                    className="block w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="group block w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-center py-3 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   >
-                    View Chart
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      <span>View Chart</span>
+                    </div>
                   </Link>
-                  <button className="block w-full bg-gray-200 text-gray-700 text-center py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
-                    Add to Watchlist
+                  
+                  <button className="group block w-full bg-white/10 backdrop-blur-md text-white text-center py-3 px-6 rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <span>Add to Watchlist</span>
+                    </div>
                   </button>
                 </div>
               </div>

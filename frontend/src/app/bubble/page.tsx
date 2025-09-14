@@ -278,6 +278,32 @@ export default function BubbleChartPage() {
         // .style("background", "#f5f7fa");
 
       bubbleGroup.selectAll("*").remove(); 
+      
+      // Add gradient definitions
+      const defs = svg.select("defs");
+      if (defs.empty()) {
+        svg.append("defs");
+      }
+      
+      // Market gradient
+      svg.select("defs").selectAll("#marketGradient").remove();
+      svg.select("defs").append("linearGradient")
+        .attr("id", "marketGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "100%")
+        .selectAll("stop")
+        .data([
+          { offset: "0%", color: "#3b82f6", opacity: 0.3 },
+          { offset: "50%", color: "#06b6d4", opacity: 0.2 },
+          { offset: "100%", color: "#8b5cf6", opacity: 0.3 }
+        ])
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color)
+        .attr("stop-opacity", d => d.opacity);
+      
       bubbleGroup.append("rect")
         .attr("x", 10)
         .attr("y", 10)
@@ -285,9 +311,10 @@ export default function BubbleChartPage() {
         .attr("height", width - 20)
         .attr("rx", 24)
         .attr("ry", 24)
-        .attr("fill", "#b3d6ebff")
-        .attr("stroke", "#1976d2")
-        .attr("stroke-width", 2);
+        .attr("fill", "url(#marketGradient)")
+        .attr("stroke", "#3b82f6")
+        .attr("stroke-width", 2)
+        .attr("filter", "url(#glow)");
 
       const data_frame = data.filter(item => {
         return item.candles.length > index;
@@ -327,7 +354,23 @@ export default function BubbleChartPage() {
         .attr("r", d => d.r)
         .attr("fill", d => color((d.data as Candle).symbol))
         .attr("opacity", 0.8)
-        .attr("pointer-events", "all");
+        .attr("pointer-events", "all")
+        .attr("filter", "url(#glow)")
+        .style("transition", "all 0.3s ease")
+        .on("mouseover", function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("opacity", 1)
+            .attr("r", d => d.r * 1.1);
+        })
+        .on("mouseout", function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("opacity", 0.8)
+            .attr("r", d => d.r);
+        });
 
       node.on("mouseover", function (event, d) {
           d3.select(this).select("circle")
@@ -400,6 +443,26 @@ export default function BubbleChartPage() {
         // Cart Area
         cartGroup.selectAll("*").remove();
         cartGroup.attr("transform", `translate(0, ${bubbleHeight})`);
+        
+        // Cart gradient
+        svg.select("defs").selectAll("#cartGradient").remove();
+        svg.select("defs").append("linearGradient")
+          .attr("id", "cartGradient")
+          .attr("x1", "0%")
+          .attr("y1", "0%")
+          .attr("x2", "100%")
+          .attr("y2", "100%")
+          .selectAll("stop")
+          .data([
+            { offset: "0%", color: "#f97316", opacity: 0.3 },
+            { offset: "50%", color: "#f59e0b", opacity: 0.2 },
+            { offset: "100%", color: "#dc2626", opacity: 0.3 }
+          ])
+          .enter().append("stop")
+          .attr("offset", d => d.offset)
+          .attr("stop-color", d => d.color)
+          .attr("stop-opacity", d => d.opacity);
+        
         cartGroup.append("rect")
           .attr("x", 10)
           .attr("y", 10)
@@ -407,9 +470,10 @@ export default function BubbleChartPage() {
           .attr("height", width - 20)
           .attr("rx", 24)
           .attr("ry", 24)
-          .attr("fill", "#fff8ef")
-          .attr("stroke", "#ff9800")
-          .attr("stroke-width", 2);
+          .attr("fill", "url(#cartGradient)")
+          .attr("stroke", "#f97316")
+          .attr("stroke-width", 2)
+          .attr("filter", "url(#glow)");
 
       svg.selectAll("text").style("user-select", "none");
     }
@@ -458,33 +522,87 @@ export default function BubbleChartPage() {
   }, [balance]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <svg id="bubble-chart" width={width} height={height}>
-        <g id="bubble-area" />
-        <g id="cart-area" />
-        <g id="dragging-circle" />
-      </svg>
-      <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#eee', border: '1px solid #bbb', cursor: 'pointer' }} onClick={handleRefresh}>↻</button>
-        {/* <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#eee', border: '1px solid #bbb', cursor: 'pointer' }} onClick={cancelCart}>Cancel</button> */}
-        <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#ff9800', color: '#fff', border: 'none', cursor: 'pointer' }} onClick={buyCart}>Buy</button>
-        <span style={{ marginLeft: 6, fontSize: 18, color: cart_circles.length === 0 ? '#1976d2' : '#f43b3bff', fontWeight: 600 }}>
-          Balance: {balance === null ? '...' : `$${balance.toFixed(2)}`}
-        </span>
-      </div>
-      {/* <div style={{ width: 600, marginBottom: 24 }}>
-        <input
-          type="range"
-          min={0}
-          max={maxFrame}
-          value={frame}
-          onChange={e => setFrame(Number(e.target.value))}
-          style={{ width: "100%" }}
-        />
-        <div style={{ textAlign: "center", marginTop: 4, color: "#666" }}>
-          Timeframe: {frame + 1} / {maxFrame + 1}
+    <div className="flex flex-col justify-center items-center min-h-[700px] space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <div className="flex items-center justify-center space-x-2">
+          <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+          <h3 className="text-lg font-bold text-white">Live Market</h3>
         </div>
-      </div> */}
+        <p className="text-blue-200 text-sm">Drag bubbles to cart to buy</p>
+      </div>
+
+      {/* Chart Container */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-3xl blur-xl"></div>
+        <div className="relative bg-white/5 backdrop-blur-md rounded-3xl p-4 border border-white/10 shadow-2xl">
+          <svg id="bubble-chart" width={width} height={height} className="rounded-2xl">
+            <defs>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <g id="bubble-area" />
+            <g id="cart-area" />
+            <g id="dragging-circle" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center space-x-4">
+        <button 
+          onClick={handleRefresh}
+          className="group relative px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="flex items-center space-x-2">
+            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+        </button>
+        
+        <button 
+          onClick={buyCart}
+          className="group relative px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="flex items-center space-x-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+            </svg>
+            <span>Buy</span>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+        </button>
+        
+        <div className="flex items-center space-x-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${cart_circles.length === 0 ? 'bg-blue-400' : 'bg-red-400'} animate-pulse`}></div>
+            <span className="text-white font-semibold">Balance:</span>
+          </div>
+          <span className={`text-lg font-bold ${cart_circles.length === 0 ? 'text-blue-300' : 'text-red-300'}`}>
+            {balance === null ? '...' : `$${balance.toFixed(2)}`}
+          </span>
+        </div>
+      </div>
+
+      {/* Cart Status */}
+      {cart_circles.length > 0 && (
+        <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-md rounded-xl p-4 border border-orange-500/30">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+            <span className="text-orange-200 font-semibold">
+              {cart_circles.length} item{cart_circles.length > 1 ? 's' : ''} in cart
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
