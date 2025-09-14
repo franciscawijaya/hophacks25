@@ -2,14 +2,23 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isAuthenticated } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +35,7 @@ export default function LoginPage() {
       if (res.status === 200 && data.token) {
         setSuccess("Login successful!");
         setError("");
-        localStorage.setItem("token", data.token);
+        login(data.token);
         router.push("/");
       } else if (res.status === 400) {
         setError(data.error || "Username and password required");
