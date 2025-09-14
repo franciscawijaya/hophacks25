@@ -1,19 +1,35 @@
 "use client";
 
 import { useAuth } from "../contexts/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import MultiLineChart from '../components/MultiLineChart';
 
 export default function ChartPage() {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [initialSymbol, setInitialSymbol] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, loading, router]);
+
+  useEffect(() => {
+    const symbol = searchParams.get('symbol');
+    console.log('🔍 Chart page - symbol from URL:', symbol);
+    if (symbol) {
+      const upperSymbol = symbol.toUpperCase();
+      console.log('🔍 Chart page - setting initial symbol:', upperSymbol);
+      setInitialSymbol(upperSymbol);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    console.log('🔍 Chart page - passing to MultiLineChart:', initialSymbol ? [initialSymbol] : undefined);
+  }, [initialSymbol]);
 
   if (loading) {
     return (
@@ -48,6 +64,7 @@ export default function ChartPage() {
           height={500}
           timeframe="1m"
           limit={1440}
+          initialSelectedSymbols={initialSymbol ? [initialSymbol] : undefined}
         />
         
         <div className="mt-8 bg-white p-6 rounded-lg shadow">

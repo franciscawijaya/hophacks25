@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { fetchCandles, fetchSymbols } from '@/utils/api';
 
@@ -20,6 +20,7 @@ interface MultiLineChartProps {
   height?: number;
   timeframe?: string;
   limit?: number;
+  initialSelectedSymbols?: string[];
 }
 
 interface TimeframeOption {
@@ -33,7 +34,8 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
   width = 800,
   height = 400,
   timeframe = "1m",
-  limit = 200
+  limit = 200,
+  initialSelectedSymbols
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [data, setData] = useState<{ [symbol: string]: CandleData[] }>({});
@@ -44,6 +46,12 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe);
   const [selectedDataLimit, setSelectedDataLimit] = useState(limit);
   const [normalizeData, setNormalizeData] = useState(true);
+
+  // Memoize the initial selected symbols to prevent unnecessary re-renders
+  const memoizedInitialSymbols = useMemo(() => {
+    console.log('🎯 MultiLineChart - memoizedInitialSymbols updated:', initialSelectedSymbols);
+    return initialSelectedSymbols;
+  }, [initialSelectedSymbols]);
 
   // Color scale for different symbols
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -86,14 +94,46 @@ const MultiLineChart: React.FC<MultiLineChartProps> = ({
       try {
         const response = await fetchSymbols();
         setSymbols(response.symbols);
-        // Select first 3 symbols by default
-        setSelectedSymbols(response.symbols.slice(0, 3));
+        
+        // Use initialSelectedSymbols if provided, otherwise select first 3 symbols by default
+        if (memoizedInitialSymbols && memoizedInitialSymbols.length > 0) {
+          // Filter to only include symbols that exist in the available symbols
+          const validSymbols = memoizedInitialSymbols.filter(symbol => 
+            response.symbols.includes(symbol)
+          );
+          console.log('🎯 Setting initial symbols:', validSymbols.length > 0 ? validSymbols : response.symbols.slice(0, 3));
+          setSelectedSymbols(validSymbols.length > 0 ? validSymbols : response.symbols.slice(0, 3));
+        } else {
+          console.log('🎯 No initial symbols, using default:', response.symbols.slice(0, 3));
+          setSelectedSymbols(response.symbols.slice(0, 3));
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load symbols");
       }
     };
     loadSymbols();
-  }, []);
+  }, [memoizedInitialSymbols]);
+
+  // Additional effect to handle initial symbols when they change after symbols are loaded
+  useEffect(() => {
+    if (symbols.length > 0 && memoizedInitialSymbols && memoizedInitialSymbols.length > 0) {
+      const validSymbols = memoizedInitialSymbols.filter(symbol => 
+        symbols.includes(symbol)
+      );
+      if (validSymbols.length > 0) {
+        console.log('🎯 Updating selected symbols with initial symbols:', validSymbols);
+        setSelectedSymbols(validSymbols);
+      }
+    }
+  }, [symbols, memoizedInitialSymbols]);
+
+  // Effect to handle initial symbols even before symbols are loaded
+  useEffect(() => {
+    if (memoizedInitialSymbols && memoizedInitialSymbols.length > 0) {
+      console.log('🎯 Setting selected symbols immediately with initial symbols:', memoizedInitialSymbols);
+      setSelectedSymbols(memoizedInitialSymbols);
+    }
+  }, [memoizedInitialSymbols]);
 
   // Load candle data for selected symbols
   useEffect(() => {
