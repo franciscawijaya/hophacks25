@@ -4,6 +4,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import MultiLineChart from '../components/MultiLineChart';
+import BubbleChartPage from "../bubble/page";
+import BubbleChartPage2 from "../bubble2/page";
 
 export default function ChartPage() {
   const { isAuthenticated, loading } = useAuth();
@@ -92,6 +94,16 @@ export default function ChartPage() {
             </div>
           </div>
         </div>
+          <div style={{ marginTop: 32, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-start", gap: 128 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ fontSize: 32, fontWeight: 700 }}>Market</div>
+              <BubbleChartPage />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ fontSize: 32, fontWeight: 700 }}>Wallet</div>
+              <BubbleChartPage2 />
+            </div>
+          </div>
       </div>
     </div>
   );
