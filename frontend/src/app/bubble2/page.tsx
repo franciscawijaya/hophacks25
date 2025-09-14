@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import * as d3 from "d3";
 import { fetchSymbols, fetchCandles } from "@/utils/api";
 import { SYMBOL_NAME_MAP, type Candle, type Circle } from "@/utils/defines";
+import { start } from "repl";
 
 // svg parameters
 let svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
@@ -18,13 +19,15 @@ let dragging_circle: Circle | null = null;
 let cart_circles: Circle[] = [];
 let originalBalance: number | null = null;
 
-export default function BubbleChartPage() {
+export default function BubbleChartPage2() {
   const { isAuthenticated, loading, logout } = useAuth();
   const [data, setData] = React.useState<any[]>([]);
   const [frame, setFrame] = React.useState(0);
   const [maxFrame, setMaxFrame] = React.useState(0);
   const [balance, setBalance] = React.useState<number | null>(null);
   const balanceRef = React.useRef(balance);
+  let wallet: Record<string, number> = {};
+  const walletRef = React.useRef(wallet);
   const [refreshKey, setRefreshKey] = React.useState(0);
   const handleRefresh = () => {
     setRefreshKey(k => k + 1);
@@ -89,7 +92,7 @@ export default function BubbleChartPage() {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
     const buyPosition = async (symbol: string, quantity: number, price: number) => {
       try {
-        const res = await fetch(BACKEND_URL + "/api/portfolio", {
+        const res = await fetch(BACKEND_URL + "/api/portfolio/sell", {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -111,9 +114,9 @@ export default function BubbleChartPage() {
     for (const c of cart_circles) {
       const result = await buyPosition(c.symbol, c.amount, c.price);
       if (result.success) {
-        console.log(`Buying ${c.amount} of ${c.symbol} at price ${c.price}`);
+        console.log(`Selling ${c.amount} of ${c.symbol} at price ${c.price}`);
       } else {
-        console.log("Buy failed:", result.error);
+        console.log("Sell failed:", result.error);
         if (result.status === 401) {
           logout();
           router.push("/login");
@@ -141,9 +144,11 @@ export default function BubbleChartPage() {
       .attr("fill", color(d.data.symbol))
       .attr("opacity", 0.8)
       .attr("pointer-events", "all");
-  
-    dragging_circle = { symbol: d.data.symbol, amount: 1/price, price: price, circle: circle.node() as SVGCircleElement };
-  
+
+    const initialAmount = Math.min(1/price, walletRef.current[d.data.symbol] || 0);
+    dragging_circle = { symbol: d.data.symbol, amount: initialAmount, price: price, circle: circle.node() as SVGCircleElement };
+    const currentSymbol = d.data.symbol;
+
     let tooltip = d3.select<HTMLDivElement, unknown>("#drag-tooltip");
     if (tooltip.empty()) {
       tooltip = d3.select("body")
@@ -187,8 +192,7 @@ export default function BubbleChartPage() {
       const rw = parseFloat(cartRect.attr("width"));
       const rh = parseFloat(cartRect.attr("height"));
       if (cx - dragging_circle_radius >= rx && cx + dragging_circle_radius <= rx + rw &&
-        cy - bubbleHeight - dragging_circle_radius >= ry && cy - bubbleHeight + dragging_circle_radius <= ry + rh &&
-        balanceRef.current !== null && balanceRef.current >= 1) {
+        cy - bubbleHeight - dragging_circle_radius >= ry && cy - bubbleHeight + dragging_circle_radius <= ry + rh) {
         if (cart_circles.length === 0) {
           originalBalance = balance;
         }
@@ -206,7 +210,7 @@ export default function BubbleChartPage() {
           .text(oldAmount < 0.001 ? oldAmount.toExponential(2) : oldAmount.toFixed(4));
         const oldPrice = price;
         const oldCost = oldAmount * oldPrice;
-        setBalance(prev => prev === null ? null : prev - oldCost);
+        setBalance(prev => prev === null ? null : prev + oldCost);
         let circle_text_cost = circleGroup.append("text")
           .attr("text-anchor", "middle")
           .attr("dy", "1.8em")
@@ -241,15 +245,15 @@ export default function BubbleChartPage() {
               const ratio = newR / dragging_circle_radius;
               let newAmount = Math.max(0.0001, Math.pow(ratio, 5) * oldAmount);
               let newCost = newAmount * oldPrice;
-              let newBalance = startBalance === null ? null : startBalance - newCost + startCost;
+              let newBalance = startBalance === null ? null : startBalance + newCost - startCost;
               if (newBalance === null) {
                 return;
               }
-              if (newBalance < 0) {
-                newCost = startBalance === null ? 0 : startBalance + startCost;
-                newAmount = (newCost) / oldPrice;
+              if (newAmount > walletRef.current[currentSymbol]) {
+                newAmount = walletRef.current[currentSymbol];
+                newCost = walletRef.current[currentSymbol] * oldPrice;
                 newR = dragging_circle_radius * Math.pow(newAmount / oldAmount, 1/5);
-                newBalance = 0;
+                newBalance = startBalance + newCost - startCost;
               }
               cart_circles.find(c => c.circle === circle.node())!.amount = newAmount;
               circle_text_amount.text(newAmount < 0.001 ? newAmount.toExponential(2) : newAmount.toFixed(4));
@@ -285,15 +289,11 @@ export default function BubbleChartPage() {
         .attr("height", width - 20)
         .attr("rx", 24)
         .attr("ry", 24)
-        .attr("fill", "#b3d6ebff")
-        .attr("stroke", "#1976d2")
+        .attr("fill", "#f1dab4ff")
+        .attr("stroke", "#f07110ff")
         .attr("stroke-width", 2);
 
-      const data_frame = data.filter(item => {
-        return item.candles.length > index;
-      }).map(item => {
-        return item.candles[index];
-      });
+      const data_frame = data;
 
       if (!data_frame.length) return;
       
@@ -378,10 +378,8 @@ export default function BubbleChartPage() {
             .style("display", "block")
             .html(
               `<div style='font-size:18px;font-weight:700;margin-bottom:2px;'>${SYMBOL_NAME_MAP[data.symbol]}</div>` +
-              // `<div>High: <b>${data.high}</b></div>` +
-              // `<div>Open: <b>${data.open}</b></div>` +
-              `<div>Close: <b>${data.close}</b></div>` +
-              `<div>Volume: <b>${data.volume}</b></div>`
+              `<div>Price: <b>${data.low}</b></div>` +
+              `<div>Balance: <b>${data.close}</b></div>`
             );
         })
         .on("mousemove", function (event) {
@@ -394,7 +392,7 @@ export default function BubbleChartPage() {
             .attr("opacity", 0.8);
           tooltip.style("display", "none");
         }).on("mousedown", function(event, d) {
-          handleBubbleMouseDown(event, d, color, (d.data as Candle).close);
+          handleBubbleMouseDown(event, d, color, (d.data as Candle).low);
         });
 
         // Cart Area
@@ -407,8 +405,8 @@ export default function BubbleChartPage() {
           .attr("height", width - 20)
           .attr("rx", 24)
           .attr("ry", 24)
-          .attr("fill", "#fff8ef")
-          .attr("stroke", "#ff9800")
+          .attr("fill", "#b3c2e6ff")
+          .attr("stroke", "#1b17f4ff")
           .attr("stroke-width", 2);
 
       svg.selectAll("text").style("user-select", "none");
@@ -416,30 +414,33 @@ export default function BubbleChartPage() {
 
 
     async function draw() {
-      svg = d3.select("#bubble-chart");
-
-      let symbols: string[] = [];
-      try {
-        const res = await fetchSymbols();
-        symbols = Array.isArray(res.symbols) ? res.symbols : [];
-      } catch {
-        return;
+      svg = d3.select("#bubble2-chart");
+      async function fetchPortfolio() {
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+        try {
+          const res = await fetch(BACKEND_URL + "/api/portfolio", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+          });
+          if (!res.ok) throw new Error("Failed to fetch portfolio");
+          const data = await res.json();
+          return data;
+        } catch (error) {
+          console.error(error);
+        }
       }
-      if (!symbols.length) return;
-
-      const all = await Promise.all(
-        symbols.map(async (symbol) => {
-          try {
-            const candles = await fetchCandles(symbol, "1m", 1);
-            return { symbol, candles };
-          } catch {
-            return { symbol, candles: [] };
-          }
-        })
-      );
+      const portfolio = await fetchPortfolio();
+      const all = portfolio.portfolio.map((item: any) => ({
+        symbol: item.symbol,
+        high: item.quantity,
+        low: item.price_per_unit_bought,
+        close: item.quantity * item.price_per_unit_bought
+      }) as Candle);
+      for (const item of all) {
+        walletRef.current[item.symbol] = item.close;
+      }
       setData(all);
-      const max = Math.max(...all.map(item => item.candles.length));
-      setMaxFrame(max > 0 ? max - 1 : 0);
+      setMaxFrame(0);
     }
 
   useEffect(() => {
@@ -453,13 +454,13 @@ export default function BubbleChartPage() {
     }
   }, [data, frame]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     balanceRef.current = balance;
   }, [balance]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <svg id="bubble-chart" width={width} height={height}>
+      <svg id="bubble2-chart" width={width} height={height}>
         <g id="bubble-area" />
         <g id="cart-area" />
         <g id="dragging-circle" />
@@ -467,7 +468,7 @@ export default function BubbleChartPage() {
       <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
         <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#eee', border: '1px solid #bbb', cursor: 'pointer' }} onClick={handleRefresh}>↻</button>
         {/* <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#eee', border: '1px solid #bbb', cursor: 'pointer' }} onClick={cancelCart}>Cancel</button> */}
-        <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#ff9800', color: '#fff', border: 'none', cursor: 'pointer' }} onClick={buyCart}>Buy</button>
+        <button style={{ padding: '8px 18px', fontSize: 18, borderRadius: 8, background: '#ff9800', color: '#fff', border: 'none', cursor: 'pointer' }} onClick={buyCart}>Sell</button>
         <span style={{ marginLeft: 6, fontSize: 18, color: cart_circles.length === 0 ? '#1976d2' : '#f43b3bff', fontWeight: 600 }}>
           Balance: {balance === null ? '...' : `$${balance.toFixed(2)}`}
         </span>

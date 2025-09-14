@@ -35,7 +35,15 @@ export default function DashboardHeader() {
         >
           📈 View Multi-Line Chart
         </Link>
+
+        {/* <Link
+          href="/bubble"
+          className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+        >
+          📊 View Bubble Chart
+        </Link> */}
       </div>
+
     </div>
   );
 }

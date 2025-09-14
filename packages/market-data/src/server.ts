@@ -113,10 +113,10 @@ app.get("/api/candles/range", async (req, reply) => {
 });
 
 // ---- OPTIONAL: manual rollup trigger (place AFTER app is created) ----
-app.post("/api/rollups/run", async () => {
-  await runAllRollups();
-  return { ok: true };
-});
+// app.post("/api/rollups/run", async () => {
+//   await runAllRollups();
+//   return { ok: true };
+// });
 
 const PORT = Number(process.env.PORT ?? 4000);
 const HOST = process.env.HOST ?? "0.0.0.0";
